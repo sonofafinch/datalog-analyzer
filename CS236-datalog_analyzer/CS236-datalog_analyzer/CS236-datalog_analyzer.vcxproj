@@ -110,10 +110,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DatalogProgram.h" />
     <ClInclude Include="lexer.h" />
+    <ClInclude Include="Parameter.h" />
+    <ClInclude Include="Predicate.h" />
+    <ClInclude Include="Rule.h" />
     <ClInclude Include="token.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DatalogProgram.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
