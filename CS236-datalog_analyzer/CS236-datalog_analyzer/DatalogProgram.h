@@ -24,7 +24,7 @@ public:
 	}
 
 	void error();
-	void advance(int cur_token, vector<Token>& tokens);
+	void advance(vector<Token>& tokens);
 	void matchTerminal(Token::TOKEN_NUM token_type, vector<Token>& tokens);
 	void parameter(vector<Token>& tokens);
 	void parameterList(vector<Token>& tokens);
@@ -47,7 +47,6 @@ private:
 	vector<Predicate> facts;
 	vector<Predicate> queries;
 	vector<Rule> rules;
-	vector<Parameter> domain;
 	vector<Parameter> cur_param;
 	vector<Predicate> cur_pred;
 	set<string> domain;

@@ -8,19 +8,14 @@
 
 #include "DatalogProgram.h"
 
-const string Token::TOKEN_TYPE[14] = { "COMMA","PERIOD","Q_MARK","LEFT_PAREN","RIGHT_PAREN","COLON","COLON_DASH",
-"SCHEMES","FACTS","RULES","QUERIES","ID","STRING","EOF" };
-const string Token::TOKEN_NAME[14] = { ",",".","?","(",")",":",":-",
-"Schemes","Facts","Rules","Queries","ID","STRING","" };
-
 void DatalogProgram::error()
 {
-	throw 20;
+	throw cur_token;
 }
 
-void DatalogProgram::advance(int cur_token, vector<Token>& tokens)
+void DatalogProgram::advance(vector<Token>& tokens)
 {
-	if (cur_token < tokens.size)
+	if (cur_token < tokens.size())
 	{
 		++cur_token;
 	}
@@ -34,7 +29,7 @@ void DatalogProgram::matchTerminal(Token::TOKEN_NUM token_type, vector<Token> &t
 {
 	if (tokens[cur_token].getType() == Token::TOKEN_TYPE[token_type])
 	{
-		advance(cur_token, tokens);
+		advance(tokens);
 	}
 	else
 	{
@@ -105,6 +100,7 @@ void DatalogProgram::predicateList(vector<Token>& tokens)
 
 void DatalogProgram::scheme(vector<Token>& tokens)
 {
+	cur_pred.clear();
 	predicate(tokens);
 	schemes.push_back(cur_pred[0]);
 }
@@ -124,6 +120,7 @@ void DatalogProgram::schemeList(vector<Token>& tokens)
 
 void DatalogProgram::fact(vector<Token>& tokens)
 {
+	cur_pred.clear();
 	predicate(tokens);
 	facts.push_back(cur_pred[0]);
 	matchTerminal(Token::PERIOD, tokens);
@@ -170,6 +167,7 @@ void DatalogProgram::ruleList(vector<Token>& tokens)
 
 void DatalogProgram::query(vector<Token>& tokens)
 {
+	cur_pred.clear();
 	predicate(tokens);
 	queries.push_back(cur_pred[0]);
 	matchTerminal(Token::Q_MARK, tokens);
@@ -214,27 +212,27 @@ string DatalogProgram::toString()
 	ss << "Schemes(" << schemes.size() << "):\n";
 	for (vector<Predicate>::iterator it = schemes.begin(); it != schemes.end(); ++it)
 	{
-		ss << it->toString() << "\n";
+		ss << "  " << it->toString() << "\n";
 	}
 	ss << "Facts(" << facts.size() << "):\n";
 	for (vector<Predicate>::iterator it = facts.begin(); it != facts.end(); ++it)
 	{
-		ss << it->toString() << "\n";
+		ss << "  " << it->toString() << "\n";
 	}
 	ss << "Rules(" << rules.size() << "):\n";
 	for (vector<Rule>::iterator it = rules.begin(); it != rules.end(); ++it)
 	{
-		ss << it->toString() << "\n";
+		ss << "  " << it->toString() << "\n";
 	}
 	ss << "Queries(" << queries.size() << "):\n";
 	for (vector<Predicate>::iterator it = queries.begin(); it != queries.end(); ++it)
 	{
-		ss << it->toString() << "\n";
+		ss << "  " << it->toString() << "\n";
 	}
 	ss << "Domain(" << domain.size() << "):\n";
 	for (set<string>::iterator it = domain.begin(); it != domain.end(); ++it)
 	{
-		ss << *it << "\n";
+		ss << "  " << *it << "\n";
 	}
 	return ss.str();
 }

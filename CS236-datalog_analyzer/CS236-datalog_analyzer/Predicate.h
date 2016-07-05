@@ -25,7 +25,7 @@ public:
 
 	string toString()
 	{
-		int count = 0;
+		unsigned int count = 0;
 		stringstream ss;
 		ss << name << "(";
 		for (vector<Parameter>::iterator it = parameters.begin(); it != parameters.end(); ++it)
@@ -38,6 +38,7 @@ public:
 			}
 		}
 		ss << ")";
+		return ss.str();
 	}
 
 private:

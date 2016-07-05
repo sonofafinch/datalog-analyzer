@@ -22,7 +22,7 @@ public:
 
 	string toString()
 	{
-		int count = 0;
+		unsigned int count = 0;
 		stringstream ss;
 		ss << name.toString() << " :- ";
 		for (vector<Predicate>::iterator it = data.begin(); it != data.end(); ++it)
@@ -34,6 +34,7 @@ public:
 				ss << ",";
 			}
 		}
+		return ss.str();
 	}
 
 private:
