@@ -2,7 +2,7 @@
 **
 ** token.h
 ** Token class declaration/definition
-** 6-28-16
+** 7-2-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -31,6 +31,14 @@ public:
 		type = token_name;
 		value = token_value;
 		line = cur_line;
+	}
+	string getType()
+	{
+		return type;
+	}
+	string getValue()
+	{
+		return value;
 	}
 	string toString()
 	{

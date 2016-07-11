@@ -28,6 +28,10 @@ public:
 	void comment_case(ifstream& cur_file);
 	void colon_case(ifstream& cur_file);
 	void scan(char* argv);
+	vector<Token> getTokens()
+	{
+		return token_list;
+	}
 	string toString();
 
 private:
