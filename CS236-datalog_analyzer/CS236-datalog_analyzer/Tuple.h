@@ -2,7 +2,7 @@
 **
 ** Tuple.h
 ** Extends the vector class for storing Tuples.
-** 7-11-16
+** 7-22-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -11,8 +11,7 @@
 #include <vector>
 #include <string>
 
-template <typename T>
-class Tuple : public vector<T>
+class Tuple : public std::vector<std::string>
 {
 public:
 	virtual ~Tuple() {};
