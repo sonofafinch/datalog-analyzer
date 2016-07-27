@@ -2,7 +2,7 @@
 **
 ** Predicate.h
 ** Predicate class declaration.
-** 7-22-16
+** 7-26-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -44,6 +44,10 @@ public:
 	{
 		return name;
 	}
+
+	/*
+		Converts the parameters to strings, as part of a vector, which gets returned.
+	*/
 	vector<string> getParams()
 	{
 		vector<string> params;
@@ -52,6 +56,11 @@ public:
 			params.push_back(it->toString());
 		}
 		return params;
+	}
+
+	vector<Parameter> getParam()
+	{
+		return parameters;
 	}
 
 private:
