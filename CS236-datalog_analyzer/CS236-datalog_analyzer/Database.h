@@ -26,6 +26,10 @@ public:
 	void searchSelect(Predicate cur_pred, Relation& cur_rel);
 	void searchProject(Predicate q_list, Relation& cur_rel);
 	void evalQueries(std::vector<Predicate> qrs_lst);
+	string toString()
+	{
+		return ss.str();
+	}
 
 private:
 	stringstream ss;

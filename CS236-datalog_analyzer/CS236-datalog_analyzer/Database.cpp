@@ -139,7 +139,8 @@ void Database::evalQueries(std::vector<Predicate> qrs_lst)
 		ss << "select\n" << cur_rel.toString(); //Output selected facts
 		searchProject(*it, cur_rel); //Project operation on select relation
 		ss << "project\n" << cur_rel.toString(); //Output projected facts
-		cur_rel.rename(it->getParams(), cur_rel); //Rename based on query variables
+		cur_rel = cur_rel.rename(it->getParams(), cur_rel); //Rename based on query variables
+		data.emplace(cur_rel.getName(), cur_rel);
 		ss << "rename\n" << cur_rel.toString() << "\n"; //Output renamed relation and a blank line
 	}
 }
