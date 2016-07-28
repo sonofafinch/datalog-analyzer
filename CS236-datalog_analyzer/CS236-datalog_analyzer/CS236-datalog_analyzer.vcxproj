@@ -110,17 +110,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Database.h" />
     <ClInclude Include="DatalogProgram.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="Parameter.h" />
     <ClInclude Include="Predicate.h" />
+    <ClInclude Include="Relation.h" />
     <ClInclude Include="Rule.h" />
+    <ClInclude Include="Scheme.h" />
     <ClInclude Include="token.h" />
+    <ClInclude Include="Tuple.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Database.cpp" />
     <ClCompile Include="DatalogProgram.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Relation.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

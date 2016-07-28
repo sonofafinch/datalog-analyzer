@@ -2,7 +2,7 @@
 **
 ** DatalogProgram.h
 ** Datalog structure class declaration.
-** 7-5-16
+** 7-26-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -39,6 +39,18 @@ public:
 	void query(vector<Token>& tokens);
 	void queryList(vector<Token>& tokens);
 	void parse(vector<Token> tokens);
+	vector<Predicate> getSchemes()
+	{
+		return schemes;
+	}
+	vector<Predicate> getFacts()
+	{
+		return facts;
+	}
+	vector<Predicate> getQueries()
+	{
+		return queries;
+	}
 	string toString();
 
 private:

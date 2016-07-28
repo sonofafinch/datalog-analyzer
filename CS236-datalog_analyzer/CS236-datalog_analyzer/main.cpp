@@ -2,12 +2,13 @@
 **
 ** main.cpp
 ** Runs a scanner with input from command arguments and outputs similarly
-** 7-5-16
+** 7-26-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
 #include "lexer.h"
 #include "DatalogProgram.h"
+#include "Database.h"
 #include <sstream>
 
 using namespace std;
@@ -30,7 +31,11 @@ int main(int argc, char* argv[])
 		outfile << ss.str();
 		return 0;
 	}
-	outfile << brainiac.toString();
+	Database fortress;
+	fortress.evalSchemes(brainiac.getSchemes());
+	fortress.evalFacts(brainiac.getFacts());
+	fortress.evalQueries(brainiac.getQueries());
+	outfile << fortress.toString();
 	outfile.close();
 	return 0;
 }
