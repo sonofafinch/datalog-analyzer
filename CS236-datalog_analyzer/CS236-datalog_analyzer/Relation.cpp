@@ -2,7 +2,7 @@
 **
 ** Relation.cpp
 ** Pulls relationships from parameters.
-** 7-27-16
+** 7-28-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -58,12 +58,12 @@ Relation Relation::project(std::vector<std::string> vals)
 	Relation next_rel; //Temporary Relation
 	next_rel.setName("project"); //Named after operation
 	std::vector<int> pos = findPos(vals); //Variables positions
-	std::vector<string> fcts; //Temporary vector to set scheme with
+	std::vector<string> schm; //Temporary vector to set scheme with
 	for (unsigned int i = 0; i < pos.size(); ++i) //Iterate through scheme to get variables in query
 	{
-		fcts.push_back(rel_scheme[pos[i]]); //Push each variable in order to the new vector
+		schm.push_back(rel_scheme[pos[i]]); //Push each variable in order to the new vector
 	}
-	next_rel.setScheme(fcts); //Set scheme with columns being kept
+	next_rel.setScheme(schm); //Set scheme with columns being kept
 	for (std::set<Tuple>::iterator it = fact_list.begin(); it != fact_list.end(); ++it) //Iterate through selected facts
 	{
 		Tuple cur_tuple; //New fact based on query
@@ -105,39 +105,29 @@ Relation Relation::rename(std::vector<std::string> vars, Relation cur_rel)
 */
 std::vector<int> Relation::findPos(std::vector<std::string> vals)
 {
-	std::vector<int> pos;
-	std::vector<std::string> seen;
-	bool found = false;
+	std::vector<int> pos; //List of positions to use for new relation fats
+	std::vector<std::string> seen; //List of parameters seen
 	for (unsigned int i = 0; i < vals.size(); ++i) //Iterate through the query
 	{
-		found = false; //Reset
-		for (unsigned int j = 0; j < rel_scheme.size(); ++j) //Iterate through scheme
-		{
-			if ((rel_scheme[j] == vals[i]) && (find(pos.begin(), pos.end(), j) == pos.end())) //Match?
-			{
-				pos.push_back(j); //Keep specific column
-				found = true; //Found matching variable in scheme
-			}
-		}
-		if ((found == false) && (vals[i][0] != '\'') && (find(seen.begin(), seen.end(), vals[i]) == seen.end())) //Didn't find in scheme
+		if((vals[i][0] != '\'') && (find(seen.begin(), seen.end(), vals[i]) == seen.end())) //Variable?
 		{
 			pos.push_back(i); //Keep current position
 		}
-		seen.push_back(vals[i]);
+		seen.push_back(vals[i]); //Mark current parameter as seen
 	}
 	return pos;
 }
 
 /*
 	Takes in a vector of strings to place into a set of tuples, the latter being
-	equivalent to a tuple. The set can't contain duplcate entries.
+	equivalent to a tuple. The set can't contain duplicate entries.
 */
 void Relation::addFact(std::vector<std::string> fcts)
 {
 	Tuple cur_tuple; //Temporary tuple for converting from vector
 	for (std::vector<std::string>::iterator it = fcts.begin(); it != fcts.end(); ++it) //Iterate through vector
 	{
-		cur_tuple.push_back(*it); //Add each vector elemnent to temp tuple
+		cur_tuple.push_back(*it); //Add each vector element to temp tuple
 	}
 	fact_list.emplace(cur_tuple); //Add temp tuple as fact in current relation
 }

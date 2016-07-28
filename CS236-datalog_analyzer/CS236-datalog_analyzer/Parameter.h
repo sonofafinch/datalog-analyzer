@@ -2,7 +2,7 @@
 **
 ** Parameter.h
 ** Parameter class declaration.
-** 7-4-16
+** 7-28-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -14,7 +14,10 @@ using namespace std;
 class Parameter
 {
 public:
-	Parameter() {};
+	Parameter()
+	{
+		literal = false;
+	};
 	Parameter(bool ltrl, string nm, string vl)
 	{
 		literal = ltrl;
