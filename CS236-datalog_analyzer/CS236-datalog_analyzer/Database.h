@@ -24,7 +24,6 @@ public:
 	void evalFacts(std::vector<Predicate> fcts_lst);
 	std::vector<int> findTwo(std::vector<Parameter> prms, Parameter cur_param);
 	void searchSelect(Predicate cur_pred, Relation& cur_rel);
-	void searchProject(Predicate q_list, Relation& cur_rel);
 	void evalQueries(std::vector<Predicate> qrs_lst);
 	string toString()
 	{

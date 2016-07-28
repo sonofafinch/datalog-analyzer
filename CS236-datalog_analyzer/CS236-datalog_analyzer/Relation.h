@@ -2,7 +2,7 @@
 **
 ** Relation.h
 ** Pulls relationships from parameters.
-** 7-26-16
+** 7-27-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -46,15 +46,19 @@ public:
 		for (std::set<Tuple>::iterator it = fact_list.begin(); it != fact_list.end(); ++it)
 		{
 			Tuple cur_tuple = *it; //Temp tuple equal to tuple iterator points to
-			for (int i = 0; i < cur_tuple.size(); ++i) //Iterate through the vector of strings
+			if (cur_tuple.size() > 0)
 			{
-				ss << "  " << rel_scheme[i] << "=" << cur_tuple[i]; //Column = row
-				if (i < it->size() - 1) //If there are other vector elements remaining, add space between them
+				ss << "  "; //Indent two spaces for each line
+				for (unsigned int i = 0; i < cur_tuple.size(); ++i) //Iterate through the vector of strings
 				{
-					ss << " ";
+					ss << rel_scheme[i] << "=" << cur_tuple[i]; //Column = row
+					if (i < it->size() - 1) //If there are other vector elements remaining, add space between them
+					{
+						ss << " ";
+					}
 				}
+				ss << "\n"; //Each tuple on its own line
 			}
-			ss << "\n"; //Each tuple on its own line
 		}
 		return ss.str();
 	}

@@ -2,7 +2,7 @@
 **
 ** Relation.cpp
 ** Pulls relationships from parameters.
-** 7-26-16
+** 7-27-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -59,7 +59,7 @@ Relation Relation::project(std::vector<std::string> vals)
 	next_rel.setName("project"); //Named after operation
 	std::vector<int> pos = findPos(vals); //Variables positions
 	std::vector<string> fcts; //Temporary vector to set scheme with
-	for (int i = 0; i < pos.size(); ++i) //Iterate through scheme to get variables in query
+	for (unsigned int i = 0; i < pos.size(); ++i) //Iterate through scheme to get variables in query
 	{
 		fcts.push_back(rel_scheme[pos[i]]); //Push each variable in order to the new vector
 	}
@@ -68,7 +68,7 @@ Relation Relation::project(std::vector<std::string> vals)
 	{
 		Tuple cur_tuple; //New fact based on query
 		Tuple fct_tuple = *it; //Selected fact
-		for (int i = 0; i < pos.size(); ++i) //Iterate through positions
+		for (unsigned int i = 0; i < pos.size(); ++i) //Iterate through positions
 		{
 			cur_tuple.push_back(fct_tuple[pos[i]]); //Put the variable in position in the new fact
 		}
@@ -84,12 +84,18 @@ Relation Relation::rename(std::vector<std::string> vars, Relation cur_rel)
 {
 	Relation fnl_rltn; //New relation to be returned
 	stringstream ss;
+	std::vector<std::string> new_var;
 	for (std::vector<std::string>::iterator it = vars.begin(); it != vars.end(); ++it) //Iterate through variables
 	{
-		ss << *it; //Add each variable to the stringstream
+		string cur_var = *it; //Temporary string for comparison
+		if (cur_var[0] != '\'') //Ignore literals
+		{
+			new_var.push_back(*it);
+			ss << *it; //Add each variable to the stringstream
+		}
 	}
 	fnl_rltn.name = ss.str(); //Name based on variables in query
-	fnl_rltn.setScheme(vars); //Confirm scheme based on query
+	fnl_rltn.setScheme(new_var); //Confirm scheme based on query
 	fnl_rltn.fact_list = cur_rel.fact_list; //Copy facts that remain after project
 	return fnl_rltn; 
 }
@@ -100,15 +106,24 @@ Relation Relation::rename(std::vector<std::string> vars, Relation cur_rel)
 std::vector<int> Relation::findPos(std::vector<std::string> vals)
 {
 	std::vector<int> pos;
-	for (int i = 0; i < vals.size(); ++i) //Columns to keep
+	std::vector<std::string> seen;
+	bool found = false;
+	for (unsigned int i = 0; i < vals.size(); ++i) //Iterate through the query
 	{
-		for (int j = 0; j < rel_scheme.size(); ++j)
+		found = false; //Reset
+		for (unsigned int j = 0; j < rel_scheme.size(); ++j) //Iterate through scheme
 		{
-			if (rel_scheme[j] == vals[i])
+			if ((rel_scheme[j] == vals[i]) && (find(pos.begin(), pos.end(), j) == pos.end())) //Match?
 			{
-				pos.push_back(j);
+				pos.push_back(j); //Keep specific column
+				found = true; //Found matching variable in scheme
 			}
 		}
+		if ((found == false) && (vals[i][0] != '\'') && (find(seen.begin(), seen.end(), vals[i]) == seen.end())) //Didn't find in scheme
+		{
+			pos.push_back(i); //Keep current position
+		}
+		seen.push_back(vals[i]);
 	}
 	return pos;
 }
@@ -119,7 +134,12 @@ std::vector<int> Relation::findPos(std::vector<std::string> vals)
 */
 void Relation::addFact(std::vector<std::string> fcts)
 {
-	fact_list.emplace(fcts);
+	Tuple cur_tuple; //Temporary tuple for converting from vector
+	for (std::vector<std::string>::iterator it = fcts.begin(); it != fcts.end(); ++it) //Iterate through vector
+	{
+		cur_tuple.push_back(*it); //Add each vector elemnent to temp tuple
+	}
+	fact_list.emplace(cur_tuple); //Add temp tuple as fact in current relation
 }
 
 /*
