@@ -2,7 +2,7 @@
 **
 ** DatalogProgram.h
 ** Datalog structure class declaration.
-** 7-26-16
+** 7-30-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -50,6 +50,10 @@ public:
 	vector<Predicate> getQueries()
 	{
 		return queries;
+	}
+	vector<Rule> getRules()
+	{
+		return rules;
 	}
 	string toString();
 

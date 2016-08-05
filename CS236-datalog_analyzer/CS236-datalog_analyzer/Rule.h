@@ -2,7 +2,7 @@
 **
 ** Rule.h
 ** Rule class declaration.
-** 7-5-16
+** 7-30-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -16,15 +16,23 @@ public:
 	Rule() {};
 	Rule(Predicate nm, vector<Predicate> dt)
 	{
-		name = nm;
+		head = nm;
 		data = dt;
 	}
 
+	Predicate getHead()
+	{
+		return head;
+	}
+	vector<Predicate> getData()
+	{
+		return data;
+	}
 	string toString()
 	{
 		unsigned int count = 0;
 		stringstream ss;
-		ss << name.toString() << " :- ";
+		ss << head.toString() << " :- ";
 		for (vector<Predicate>::iterator it = data.begin(); it != data.end(); ++it)
 		{
 			ss << it->toString();
@@ -38,6 +46,6 @@ public:
 	}
 
 private:
-	Predicate name;
+	Predicate head;
 	vector<Predicate> data;
 };

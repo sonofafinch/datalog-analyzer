@@ -2,7 +2,7 @@
 **
 ** Database.cpp
 ** Implementation of database and functions to populate it.
-** 7-27-16
+** 8-3-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -122,9 +122,85 @@ void Database::evalQueries(std::vector<Predicate> qrs_lst)
 			ss << "select\n" << cur_rel.toString(); //Output selected facts
 			cur_rel = cur_rel.project(it->getParams()); //Project operation on select relation
 			ss << "project\n" << cur_rel.toString(); //Output projected facts
-			cur_rel = cur_rel.rename(it->getParams(), cur_rel); //Rename based on query variables
+			cur_rel = cur_rel.rename(it->getParams()); //Rename based on query variables
 			data.emplace(cur_rel.getName(), cur_rel);
 			ss << "rename\n" << cur_rel.toString() << "\n"; //Output renamed relation and a blank line
 		}
+	}
+}
+
+/*
+	Takes in a predicate and returns a relation based on its variables.
+*/
+Relation Database::ruleRel(Predicate cur_pred)
+{
+	std::vector<std::string> cur_params = cur_pred.getParams();
+	Relation cur_rel = data.find(cur_pred.getName())->second; //Get the corresponding relation
+	searchSelect(cur_pred, cur_rel); //Select based on rule predicate
+	if (!(cur_rel.getList().empty())) //Facts found?
+	{ //Yes
+		cur_rel = cur_rel.project(cur_params); //Project on selected tuples
+		cur_rel = cur_rel.rename(cur_pred.getParams()); //Rename based on predicate variables
+	}
+	return cur_rel;
+}
+
+/*
+	Keep track of tuples in database to know if rules have altered any relations.
+*/
+int Database::countTuples()
+{
+	int cnt = 0;
+	for (std::map<std::string, Relation>::iterator it = data.begin(); it != data.end(); ++it)
+	{
+		std::set<Tuple> cur_fact = it->second.getList();
+		for (std::set<Tuple>::iterator jt = cur_fact.begin(); jt != cur_fact.end(); ++jt)
+		{
+			++cnt;
+		}
+	}
+	return cnt;
+}
+
+/*
+	Takes a vector of rules as input and iterates through them to create new relations
+	in the database. Each new relation is based on select, project and rename operations
+	as required by the rule being evaluated.
+*/
+void Database::evalRules(std::vector<Rule> rule_list)
+{
+	ss << "Rule Evaluation\n\n";
+	int cnt = 0; 
+	int passes = 0;
+	do //Evaluate rules at least one time
+	{
+		cnt = countTuples(); //Set starting tuple count
+		for (vector<Rule>::iterator it = rule_list.begin(); it != rule_list.end(); ++it) //Iterate through each rule
+		{
+			ss << it->toString() << "\n";
+			std::vector<Relation> rule_data; //Temporary vector to save new relations
+			std::vector<Predicate> cur_data = it->getData(); //Temporary vector to hold rule data
+			for (std::vector<Predicate>::iterator jt = cur_data.begin(); jt != cur_data.end(); ++jt) //Iterate through each predicate
+			{
+				rule_data.push_back(ruleRel(*jt)); //Save relations created by rule data
+			}
+			while (rule_data.size() > 1) //More than one new relation?
+			{
+				rule_data[0] = rule_data[0].join(rule_data[1]); //Join first two relations
+				rule_data.erase(rule_data.begin() + 1); //Erase the second
+			} //If more than one remains, repeat
+			rule_data[0] = rule_data[0].project(rule_data[0].findPos(it->getHead().getParam())); //Project on the remaining relation based on the positions found from rule head
+			std::string cur_name = it->getHead().getName();
+			data.at(cur_name).compFacts(rule_data[0]); //Remove anything already in the relation prior to printing out
+			rule_data[0] = rule_data[0].rename(data.at(cur_name).getScheme()); //Rename based on relation
+			ss << rule_data[0].toString(); //Print out prior to union
+			data.at(cur_name) = data.at(cur_name).onion(rule_data[0]); //Find the relation with a matching name and union with the one from evaluation
+		}
+		++passes; //How many times through the rules?
+	} while (cnt != countTuples()); //Repeat if any relations were altered by rules
+	ss << "\nConverged after " << passes << " passes through the Rules.\n\n";
+	for (std::map<std::string, Relation>::iterator it = data.begin(); it != data.end(); ++it)
+	{
+		ss << it->first << "\n" << it->second.toString() << "\n";
 	}
 }

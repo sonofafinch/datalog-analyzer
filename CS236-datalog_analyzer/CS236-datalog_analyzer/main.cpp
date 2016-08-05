@@ -2,7 +2,7 @@
 **
 ** main.cpp
 ** Runs a scanner with input from command arguments and outputs similarly
-** 7-26-16
+** 7-30-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
 	Database fortress;
 	fortress.evalSchemes(brainiac.getSchemes());
 	fortress.evalFacts(brainiac.getFacts());
+	fortress.evalRules(brainiac.getRules());
 	fortress.evalQueries(brainiac.getQueries());
 	outfile << fortress.toString();
 	outfile.close();
