@@ -2,7 +2,7 @@
 **
 ** Relation.h
 ** Pulls relationships from parameters.
-** 7-27-16
+** 8-4-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -15,6 +15,7 @@
 #include <set>
 #include <string>
 #include <algorithm>
+#include <utility>
 
 class Relation
 {
@@ -24,8 +25,16 @@ public:
 	Relation select(int index, std::string value);
 	Relation select(int ind1, int ind2);
 	Relation project(std::vector<std::string> vals);
-	Relation rename(std::vector<std::string> vars, Relation cur_rel);
+	Relation project(std::vector<int> pos);
+	Relation rename(std::vector<std::string> vars);
+	Relation join(Relation r2);
+	Relation onion(Relation r3);
 	std::vector<int> findPos(std::vector<std::string> vals);
+	std::vector<int> findPos(std::vector<Parameter> vars);
+	Scheme combScheme(Scheme schm1, Scheme schm2, std::vector<std::pair<int, int>>& matches);
+	bool testTuples(Tuple t1, Tuple t2, std::vector<std::pair<int, int>> matches);
+	Tuple joinTuple(Tuple t1, Tuple t2, std::vector<std::pair<int, int>> matches);
+	void compFacts(Relation& r4);
 	void addFact(std::vector<std::string> fcts);
 	void setName(std::string nm);
 	void setScheme(std::vector<std::string> prms);
@@ -36,6 +45,10 @@ public:
 	string getName()
 	{
 		return name;
+	}
+	Scheme getScheme()
+	{
+		return rel_scheme;
 	}
 	/*
 		Outputs the relation facts only, without name, with scheme association
