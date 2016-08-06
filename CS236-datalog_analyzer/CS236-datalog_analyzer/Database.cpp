@@ -2,7 +2,7 @@
 **
 ** Database.cpp
 ** Implementation of database and functions to populate it.
-** 8-3-16
+** 8-6-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -163,6 +163,184 @@ int Database::countTuples()
 }
 
 /*
+	Adds the graph to the stringstream
+*/
+void Database::printGraph(Graph any_graph)
+{
+	for (int i = 1; i <= any_graph.getSize(); ++i) //Iterate through the graph
+	{
+		ss << "  R" << i << ": "; //Output the node
+		std::set<int> successors = any_graph.getSuccessors(i); //Get node successors
+		int j = 0; //Count to track place in set
+		for (std::set<int>::iterator it = successors.begin(); it != successors.end(); ++it)
+		{
+			ss << "R" << *it; //Output successor
+			if (j < (successors.size() - 1)) //End of set?
+			{
+				ss << " "; //No
+			}
+			++j; //Increment place in set
+		}
+		ss << "\n";
+	}
+	ss << "\n";
+}
+
+/*
+	Prints out the post-order number for each node
+*/
+void Database::printPO(Graph rev_graph)
+{
+	ss << "Postorder Numbers\n";
+	for (int i = 1; i <= rev_graph.getSize(); ++i) //Iterate through the graph nodes
+	{
+		ss << "  R" << i << ": " << rev_graph.getPO(i) << "\n"; //Output the node ID and its PO
+	}
+	ss << "\n";
+}
+
+/*
+	Make and return the dependency graph and make the reverse dependency graph, passing it out
+	by reference, based on the imported rules.
+*/
+Graph Database::buildGraph(std::vector<Rule> rule_list, Graph& rev_graph)
+{
+	Graph dep_graph; //New dependency graph
+	for (int i = 0; i < rule_list.size; ++i) //Count the rules
+	{
+		dep_graph.addNode(i + 1); //Add a node for each rule
+	}
+	rev_graph = dep_graph; //Duplicate the graph for tracking reverse dependencies
+	int i, k = 0; //Rule ID's
+	for (std::vector<Rule>::iterator it = rule_list.begin(); it != rule_list.end(); ++it) //Iterate through each rule
+	{
+		++i; //New ID for current rule
+		std::vector<Predicate> rule_body = it->getData(); //Get the current rule body predicates
+		for (std::vector<Predicate>::iterator jt = rule_body.begin(); jt != rule_body.end(); ++jt) //Iterate through the predicates
+		{
+			for (std::vector<Rule>::iterator kt = rule_list.begin(); kt != rule_list.end(); ++kt) //Iterate through the rules again
+			{
+				++k; //Temporary ID for tracking rules
+				if ((jt->getName()) == (kt->getHead().getName())) //Does the body predicate match any rule?
+				{
+					dep_graph.addSuccessor(i, k); //New edge for dependency graph
+					rev_graph.addSuccessor(k, i); //New edge for reverse dependency graph
+				}
+			}
+		}
+	}
+	ss << "Dependency Graph\n";
+	printGraph(dep_graph);
+	ss << "Reverse Graph\n";
+	printGraph(rev_graph);
+}
+
+/*
+	Performs a depth-first search on a single node.
+*/
+void Database::DFS(int ID, int& cnt, Graph& rev_graph)
+{
+	rev_graph.setFlag(ID, true); //Mark the node visited
+	std::set<int> sccssrs = rev_graph.getSuccessors(ID); //Get the node's successors
+	for (std::set<int>::iterator it = sccssrs.begin(); it != sccssrs.end(); ++it) //Iterate through the neighboring nodes
+	{
+		if (rev_graph.getFlag(*it) != true) //Node visited yet?
+		{
+			DFS(*it, cnt, rev_graph); //No, go to the next successor
+		}
+	}
+	++cnt; //Increase the post-order ID
+	rev_graph.setPO(ID, cnt); //Set the PO number for the current node
+	return;
+}
+
+/*
+	Performs a depth-first search on a single node without assigning post-order
+	numbers, rather assigning connected components to a set.
+*/
+void Database::DFS(int ID, std::vector<int>& scc, Graph& dep_graph)
+{
+	scc.push_back(ID); //Add next node visited to the list
+	dep_graph.setFlag(ID, true); //Mark the node visited
+	std::set<int> sccssrs = dep_graph.getSuccessors(ID); //Get the node's successors
+	for (std::set<int>::iterator it = sccssrs.begin(); it != sccssrs.end(); ++it) //Iterate through the neighboring nodes
+	{
+		if (dep_graph.getFlag(*it) != true) //Node visited yet?
+		{
+			DFS(*it, scc, dep_graph); //No, go to the next successor
+		}
+	}
+	return;
+}
+
+/*
+	DFS Forest:  Search through the reverse dependency graph and assign post-order numbers.
+*/
+void Database::graphDFS(Graph& rev_graph)
+{
+	int cnt = 0; //Initialize post-order number value
+	for (int i = 1; i <= rev_graph.getSize(); ++i) //Iterate through each node
+	{
+		if (rev_graph.getFlag(i) != true) //Node visited?
+		{
+			DFS(i, cnt, rev_graph); //No, start a new tree
+		}
+	}
+}
+
+/*
+	Finds the strongly connected components in the graph using their
+	post-order numbers and returns a map with each set.
+*/
+std::vector<std::vector<int>> Database::findSCC(Graph& dep_graph, Graph rev_graph)
+{
+	std::vector<std::vector<int>> scc_list; //List of strongly connected components
+	for (int i = rev_graph.getSize(); i > 0; --i) //Look for larger post-order numbers first
+	{
+		std::vector<int> scc; //Vector to hold path from current node
+		DFS(rev_graph.getNode(i), scc, dep_graph); //Search from node w/ highest PO
+		if (!scc.empty())
+		{
+			scc_list.push_back(scc);
+		}
+	}
+	return scc_list; //Return the list of SCC
+}
+
+/*
+	Run evaluation on specific rules, based on SCC's found
+*/
+void Database::ruleEval(std::vector<int> scc, std::vector<Rule> rule_list)
+{
+	ss << "SCC:";
+	for (int i = 0; i < scc.size(); ++i) //Iterate through all nodes in the SCC
+	{
+		ss << " R" << scc[i]; //Output each node
+	}
+	ss << "\n";
+	for (vector<int>::iterator it = scc.begin(); it != scc.end(); ++it) //Iterate through each rule in the SCC
+	{
+		std::vector<Relation> rule_data; //Temporary vector to save new relations
+		std::vector<Predicate> cur_data = rule_list[*it].getData(); //Temporary vector to hold rule data
+		for (std::vector<Predicate>::iterator jt = cur_data.begin(); jt != cur_data.end(); ++jt) //Iterate through each predicate
+		{
+			rule_data.push_back(ruleRel(*jt)); //Save relations created by rule data
+		}
+		while (rule_data.size() > 1) //More than one new relation?
+		{
+			rule_data[0] = rule_data[0].join(rule_data[1]); //Join first two relations
+			rule_data.erase(rule_data.begin() + 1); //Erase the second
+		} //If more than one remains, repeat
+		rule_data[0] = rule_data[0].project(rule_data[0].findPos(rule_list[*it].getHead().getParam())); //Project on the remaining relation based on the positions found from rule head
+		std::string cur_name = rule_list[*it].getHead().getName();
+		data.at(cur_name).compFacts(rule_data[0]); //Remove anything already in the relation prior to printing out
+		rule_data[0] = rule_data[0].rename(data.at(cur_name).getScheme()); //Rename based on relation
+		ss << rule_data[0].toString(); //Print out prior to union
+		data.at(cur_name) = data.at(cur_name).onion(rule_data[0]); //Find the relation with a matching name and union with the one from evaluation
+	}
+}
+
+/*
 	Takes a vector of rules as input and iterates through them to create new relations
 	in the database. Each new relation is based on select, project and rename operations
 	as required by the rule being evaluated.
@@ -170,37 +348,29 @@ int Database::countTuples()
 void Database::evalRules(std::vector<Rule> rule_list)
 {
 	ss << "Rule Evaluation\n\n";
-	int cnt = 0; 
-	int passes = 0;
-	do //Evaluate rules at least one time
+	Graph rev_graph; //Initialize the reverse dependency graph
+	Graph dep_graph = buildGraph(rule_list, rev_graph); //Build both graphs
+	graphDFS(rev_graph); //run DFS Forest on the reverse dependency graph
+	printPO(rev_graph); //Print the PO for each node
+	std::vector<std::vector<int>> scc_list = findSCC(dep_graph, rev_graph);
+	ss << "SCC Search Order\n";
+	for (std::vector<std::vector<int>>::iterator it = scc_list.begin(); it != scc_list.end(); ++it)
 	{
-		cnt = countTuples(); //Set starting tuple count
-		for (vector<Rule>::iterator it = rule_list.begin(); it != rule_list.end(); ++it) //Iterate through each rule
+		std::vector<int> cur_scc = *it;
+		ss << "  R" << cur_scc[0] << "\n";
+		if ((cur_scc.size() == 1) && (count(cur_scc.begin(), cur_scc.end(), cur_scc[0]) == 1))
 		{
-			ss << it->toString() << "\n";
-			std::vector<Relation> rule_data; //Temporary vector to save new relations
-			std::vector<Predicate> cur_data = it->getData(); //Temporary vector to hold rule data
-			for (std::vector<Predicate>::iterator jt = cur_data.begin(); jt != cur_data.end(); ++jt) //Iterate through each predicate
-			{
-				rule_data.push_back(ruleRel(*jt)); //Save relations created by rule data
-			}
-			while (rule_data.size() > 1) //More than one new relation?
-			{
-				rule_data[0] = rule_data[0].join(rule_data[1]); //Join first two relations
-				rule_data.erase(rule_data.begin() + 1); //Erase the second
-			} //If more than one remains, repeat
-			rule_data[0] = rule_data[0].project(rule_data[0].findPos(it->getHead().getParam())); //Project on the remaining relation based on the positions found from rule head
-			std::string cur_name = it->getHead().getName();
-			data.at(cur_name).compFacts(rule_data[0]); //Remove anything already in the relation prior to printing out
-			rule_data[0] = rule_data[0].rename(data.at(cur_name).getScheme()); //Rename based on relation
-			ss << rule_data[0].toString(); //Print out prior to union
-			data.at(cur_name) = data.at(cur_name).onion(rule_data[0]); //Find the relation with a matching name and union with the one from evaluation
+			ruleEval(cur_scc, rule_list);
 		}
-		++passes; //How many times through the rules?
-	} while (cnt != countTuples()); //Repeat if any relations were altered by rules
-	ss << "\nConverged after " << passes << " passes through the Rules.\n\n";
-	for (std::map<std::string, Relation>::iterator it = data.begin(); it != data.end(); ++it)
-	{
-		ss << it->first << "\n" << it->second.toString() << "\n";
+		else
+		{
+			int cnt = 0;
+			do
+			{
+				cnt = countTuples(); //Set starting tuple count
+				ruleEval(cur_scc, rule_list);
+			} while (cnt != countTuples()); //Repeat if any relations were altered by rules
+		}
 	}
+	ss << "Rule Evaluation Complete\n\n";
 }

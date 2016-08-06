@@ -112,6 +112,7 @@
   <ItemGroup>
     <ClInclude Include="Database.h" />
     <ClInclude Include="DatalogProgram.h" />
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="Parameter.h" />
     <ClInclude Include="Predicate.h" />
@@ -124,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="DatalogProgram.cpp" />
+    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Relation.cpp" />

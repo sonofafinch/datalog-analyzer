@@ -2,7 +2,7 @@
 **
 ** Database.h
 ** Stores relationships for use by the interpreter.
-** 7-30-16
+** 8-6-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -11,6 +11,7 @@
 #include "Relation.h"
 #include "Parameter.h"
 #include "Rule.h"
+#include "Graph.h"
 #include <sstream>
 #include <map>
 #include <string>
@@ -28,6 +29,14 @@ public:
 	void evalQueries(std::vector<Predicate> qrs_lst);
 	Relation ruleRel(Predicate cur_pred);
 	int countTuples();
+	void printGraph(Graph any_graph);
+	void printPO(Graph rev_graph);
+	Graph buildGraph(std::vector<Rule> rule_list, Graph& rev_graph);
+	void DFS(int ID, int& cnt, Graph& rev_graph);
+	void DFS(int ID, std::vector<int>& scc, Graph& dep_graph);
+	void graphDFS(Graph& rev_graph);
+	std::vector<std::vector<int>> findSCC(Graph& dep_graph, Graph rev_graph);
+	void ruleEval(std::vector<int> scc, std::vector<Rule> rule_list);
 	void evalRules(std::vector<Rule> rule_list);
 	string toString()
 	{
