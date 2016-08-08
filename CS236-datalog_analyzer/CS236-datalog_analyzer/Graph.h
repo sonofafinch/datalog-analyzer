@@ -71,7 +71,8 @@ private:
 	public:
 		Node()
 		{
-			postorder_num, visit_flag = 0;
+			postorder_num = 0;
+			visit_flag = false;
 		}
 
 		std::set<int> successors;

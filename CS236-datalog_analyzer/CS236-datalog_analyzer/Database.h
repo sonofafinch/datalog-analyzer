@@ -2,7 +2,7 @@
 **
 ** Database.h
 ** Stores relationships for use by the interpreter.
-** 8-6-16
+** 8-8-16
 ** Author: Nathan Finch
 ** -------------------------------------------------------------------------*/
 
@@ -37,6 +37,7 @@ public:
 	void graphDFS(Graph& rev_graph);
 	std::vector<std::vector<int>> findSCC(Graph& dep_graph, Graph rev_graph);
 	void ruleEval(std::vector<int> scc, std::vector<Rule> rule_list);
+	void printSO(Graph rev_graph);
 	void evalRules(std::vector<Rule> rule_list);
 	string toString()
 	{
